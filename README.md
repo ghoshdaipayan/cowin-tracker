@@ -4,7 +4,7 @@ This tool has been created to monitor cowin web-site to check for the availabili
 
 To use this tool, follow the below steps:
 
-1.  Download **cowin_tracker.exe** & **district_code.json** from **cowin_tracker** directory.
+1.  Download **cowin_tracker.exe** & **district_code.json** from **executables** directory.
 2.  Double click on the exe file to start cowin_tracker. 
 3.  You will be prompted to enter your **district_id**. Select the appropriate id for your district from the list shown in the console.
 4.  Now you will be asked to enter the **minimum age limit** for your search. Enter either **18 or 45** based on your requirement.
