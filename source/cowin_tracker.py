@@ -8,6 +8,7 @@ import winsound
 
 
 available_centers = {'centers': []}
+toCheck_pins = set()
 headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/50.0.2661.102 Safari/537.36',
@@ -21,6 +22,7 @@ def read_district(file_path: Path):
 
 
 def fetch_by_pin(pin, date):
+    # https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=781021&date=08-05-2021
     print(f'Verifying PIN: {pin}, {date}')
     pin_code_url = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?" \
                    f"pincode={pin}&date={date}"
@@ -93,7 +95,9 @@ if __name__ == '__main__':
             for center in centers:
                 for session in center["sessions"]:
                     if session["available_capacity"] > 0 and session["min_age_limit"] == min_age:
-                        fetch_by_pin(center["pincode"], session["date"])
+                        toCheck_pins.add((center["pincode"], session["date"]))
+
+                        # fetch_by_pin(center["pincode"], session["date"])
                         # available_centers['centers'].append({
                         #     'center': center["name"],
                         #     'pin_code':  center["pincode"],
@@ -102,6 +106,10 @@ if __name__ == '__main__':
                         #     'min_age_limit': session["min_age_limit"],
                         #     'vaccine': session["vaccine"]
                         # })
+            if toCheck_pins:
+                for item in toCheck_pins:
+                    fetch_by_pin(*item)
+                toCheck_pins.clear()
             if available_centers['centers']:
                 for center in available_centers['centers']:
                     print(Fore.GREEN)
