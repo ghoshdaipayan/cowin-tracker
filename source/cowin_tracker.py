@@ -7,26 +7,47 @@ import time
 import winsound
 
 
+available_centers = {'centers': []}
+headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/50.0.2661.102 Safari/537.36',
+        'Accept': 'application/json'}
+
+
 def read_district(file_path: Path):
     with file_path.open('r') as f:
         districts = json.load(f)['districts']
     return districts
 
 
-# def fetch_by_pin(pin):
-#     pin_code_url = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?" \
-#                    f"pincode={pin}&date={date}"
-#     pass
+def fetch_by_pin(pin, date):
+    print(f'Verifying PIN: {pin}, {date}')
+    pin_code_url = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?" \
+                   f"pincode={pin}&date={date}"
+
+    res = requests.get(pin_code_url, headers=headers)
+    if res.status_code != 200:
+        print(Fore.RED + f'API Error while fethcing via PIN CODE. Reason: {res.reason}' + Fore.RESET)
+        return None
+
+    centers = res.json()['centers']
+    for center in centers:
+        for session in center["sessions"]:
+            if session["available_capacity"] > 0:
+                available_centers["centers"].append({
+                                    'center': center["name"],
+                                    'pin_code':  center["pincode"],
+                                    'date': session["date"],
+                                    'capacity': session["available_capacity"],
+                                    'min_age_limit': session["min_age_limit"],
+                                    'vaccine': session["vaccine"]
+                                })
 
 
 def fetch_by_district(district_id: str, date: str):     # noqa
+    print(f'Checking DISTRICT ID: {district_id}')
     district_url = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?" \
                    f"district_id={district_id}&date={date}"
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/50.0.2661.102 Safari/537.36',
-        'Accept': 'application/json'}
 
     res = requests.get(district_url, headers=headers)
     if res.status_code != 200:
@@ -60,7 +81,6 @@ if __name__ == '__main__':
             raise Exception('Invalid age limit entered !')
 
         print()
-        available_centers = {'centers': []}
         check_count = 1
         while True:
             print(Fore.YELLOW + f'CHECK {check_count}' + Fore.RESET)
@@ -73,14 +93,15 @@ if __name__ == '__main__':
             for center in centers:
                 for session in center["sessions"]:
                     if session["available_capacity"] > 0 and session["min_age_limit"] == min_age:
-                        available_centers['centers'].append({
-                            'center': center["name"],
-                            'pin_code':  center["pincode"],
-                            'date': session["date"],
-                            'capacity': session["available_capacity"],
-                            'min_age_limit': session["min_age_limit"],
-                            'vaccine': session["vaccine"]
-                        })
+                        fetch_by_pin(center["pincode"], session["date"])
+                        # available_centers['centers'].append({
+                        #     'center': center["name"],
+                        #     'pin_code':  center["pincode"],
+                        #     'date': session["date"],
+                        #     'capacity': session["available_capacity"],
+                        #     'min_age_limit': session["min_age_limit"],
+                        #     'vaccine': session["vaccine"]
+                        # })
             if available_centers['centers']:
                 for center in available_centers['centers']:
                     print(Fore.GREEN)
