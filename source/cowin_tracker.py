@@ -54,6 +54,8 @@ def fetch_by_district(district_id: str, date: str):     # noqa
     res = requests.get(district_url, headers=headers)
     if res.status_code != 200:
         print(Fore.RED + f'API Error. Reason: {res.reason}' + Fore.RESET)
+        print(Fore.RED + 'Sleeping for 5 mins' + Fore.RESET)
+        time.sleep(300)
         return None
 
     return res.json()['centers']
@@ -139,7 +141,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     finally:
-        input('Press ENTER to exit terminal')
+        input('Press ENTER to exit terminal ')
         print(Fore.MAGENTA + '\nBYE')
         print(Fore.RESET)
         deinit()
