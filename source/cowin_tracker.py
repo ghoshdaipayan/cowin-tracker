@@ -22,9 +22,9 @@ def read_district(file_path: Path):
 
 
 def fetch_by_pin(pin, date):
-    # https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=781021&date=08-05-2021
     print(f'Verifying PIN: {pin}, {date}')
-    pin_code_url = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?" \
+
+    pin_code_url = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?" \
                    f"pincode={pin}&date={date}"
 
     res = requests.get(pin_code_url, headers=headers)
@@ -32,18 +32,17 @@ def fetch_by_pin(pin, date):
         print(Fore.RED + f'API Error while fethcing via PIN CODE. Reason: {res.reason}' + Fore.RESET)
         return None
 
-    centers = res.json()['centers']
-    for center in centers:
-        for session in center["sessions"]:
-            if session["available_capacity"] > 0:
-                available_centers["centers"].append({
-                                    'center': center["name"],
-                                    'pin_code':  center["pincode"],
-                                    'date': session["date"],
-                                    'capacity': session["available_capacity"],
-                                    'min_age_limit': session["min_age_limit"],
-                                    'vaccine': session["vaccine"]
-                                })
+    sessions = res.json()['sessions']
+    for session in sessions:
+        if session["available_capacity"] > 0:
+            available_centers["centers"].append({
+                                'center': session["name"],
+                                'pin_code':  session["pincode"],
+                                'date': session["date"],
+                                'capacity': session["available_capacity"],
+                                'min_age_limit': session["min_age_limit"],
+                                'vaccine': session["vaccine"]
+                            })
 
 
 def fetch_by_district(district_id: str, date: str):     # noqa
