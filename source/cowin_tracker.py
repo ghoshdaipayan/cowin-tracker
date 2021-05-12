@@ -124,7 +124,8 @@ if __name__ == '__main__':
                     print('-'*50)
 
                 print(Fore.YELLOW)
-                print(f'\nTime: {datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}')
+                print(f'\nTime: {datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}, '
+                      f'Total: {len(available_centers["centers"])}')
                 print(f'Above centers are available for booking. Book Now !!')
                 print(Fore.RESET)
                 winsound.Beep(800, 2500)
